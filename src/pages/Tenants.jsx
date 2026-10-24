@@ -15,11 +15,11 @@ export default function Tenants(){
   const load = async ()=>{
     setLoading(true);
     const [t,r] = await Promise.all([tenantsAPI.getAll(), roomsAPI.getAll()]);
-    setTenants(t); setRooms(r); setLoading(false);
+    setTenants(Array.isArray(t)?t:[]); setRooms(Array.isArray(r)?r:[]); setLoading(false);
   };
   useEffect(()=>{ load(); },[]);
 
-  const filtered = tenants.filter(t=> (t.name+' '+t.phone+' '+t.email+' '+t.roomNumber).toLowerCase().includes(query.toLowerCase()));
+  const filtered = (Array.isArray(tenants)?tenants:[]).filter(t=> (t.name+' '+t.phone+' '+t.email+' '+t.roomNumber).toLowerCase().includes(query.toLowerCase()));
 
   const submit = async (e)=>{
     e.preventDefault();

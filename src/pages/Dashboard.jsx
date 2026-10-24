@@ -22,8 +22,9 @@ export default function Dashboard(){
     })();
   },[]);
 
-  const paidCount = payments.filter(x=>x.status==='Paid').slice(0,6).length;
-  const pendingRent = payments.filter(x=>x.status!=='Paid').length;
+  const safePayments = Array.isArray(payments) ? payments : [];
+  const paidCount = safePayments.filter(x=>x.status==='Paid').slice(0,6).length;
+  const pendingRent = safePayments.filter(x=>x.status!=='Paid').length;
 
   if(loading){
     return <div className="space-y-4"><div className="h-32 bg-white rounded-xl animate-pulse"></div><div className="grid grid-cols-4 gap-4">{[1,2,3,4].map(i=><div key={i} className="h-32 bg-white rounded-xl animate-pulse"></div>)}</div></div>
@@ -100,7 +101,7 @@ export default function Dashboard(){
                     <tr><th className="text-left px-3 py-2.5">Booking ID</th><th className="text-left px-3 py-2.5">Tenant</th><th className="text-left px-3 py-2.5">Room</th><th className="text-left px-3 py-2.5">Date</th><th className="text-left px-3 py-2.5">Status</th></tr>
                   </thead>
                   <tbody>
-                    {bookings.slice(0,3).map(b=>(
+                    {(Array.isArray(bookings)?bookings:[]).slice(0,3).map(b=>(
                       <tr key={b.id} className="border-t border-slate-100 hover:bg-slate-50">
                         <td className="px-3 py-3"><span className="bg-slate-300 text-slate-800 px-2.5 py-1 rounded text-[12px] font-medium">{b.bookingId}</span></td>
                         <td className="px-3 py-3 font-medium text-slate-800">{b.tenantName}</td>
@@ -126,7 +127,7 @@ export default function Dashboard(){
                     <tr><th className="text-left px-3 py-2.5">Payment ID</th><th className="text-left px-3 py-2.5">Tenant</th><th className="text-left px-3 py-2.5">Amount</th><th className="text-left px-3 py-2.5">Date</th><th className="text-left px-3 py-2.5">Status</th></tr>
                   </thead>
                   <tbody>
-                    {payments.slice(0,3).map(p=>(
+                    {(Array.isArray(payments)?payments:[]).slice(0,3).map(p=>(
                       <tr key={p.id} className="border-t border-slate-100 hover:bg-slate-50">
                         <td className="px-3 py-3"><span className="bg-slate-300 text-slate-800 px-2.5 py-1 rounded text-[12px] font-medium">{p.paymentId}</span></td>
                         <td className="px-3 py-3 font-medium text-slate-800">{p.tenantName}</td>
@@ -164,7 +165,7 @@ export default function Dashboard(){
           <div className="bg-white rounded-xl shadow-card border border-slate-100 p-5">
             <h3 className="font-bold text-slate-900 mb-4">Room Occupancy</h3>
             <div className="space-y-3">
-              {rooms.slice(0,6).map(r=>(
+              {(Array.isArray(rooms)?rooms:[]).slice(0,6).map(r=>(
                 <div key={r.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
                   <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${r.status==='Available' ? 'bg-emerald-500' : 'bg-red-500'}`}></div>

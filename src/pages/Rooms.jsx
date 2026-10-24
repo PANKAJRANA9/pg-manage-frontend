@@ -19,7 +19,7 @@ export default function Rooms(){
   };
   useEffect(()=>{ load(); },[]);
 
-  const filtered = rooms.filter(r=> (r.roomNumber+' '+r.type+' '+r.status).toLowerCase().includes(query.toLowerCase()));
+  const filtered = (Array.isArray(rooms)?rooms:[]).filter(r=> (r.roomNumber+' '+r.type+' '+r.status).toLowerCase().includes(query.toLowerCase()));
 
   const submit = async (e)=>{
     e.preventDefault();

@@ -20,15 +20,16 @@ export default function Payments(){
   const load = async ()=>{
     setLoading(true);
     const [p,b,t] = await Promise.all([paymentsAPI.getAll(), bookingsAPI.getAll(), tenantsAPI.getAll()]);
-    setPayments(p); setBookings(b); setTenants(t); setLoading(false);
+    setPayments(Array.isArray(p) ? p : []); setBookings(Array.isArray(b) ? b : []); setTenants(Array.isArray(t) ? t : []); setLoading(false);
   };
   useEffect(()=>{ load(); },[]);
 
   const stats = useMemo(()=>{
-    const total = payments.reduce((s,x)=> s + Number(x.amount), 0);
-    const pending = payments.filter(x=> x.status==='Pending');
-    const overdue = payments.filter(x=> x.status==='Overdue');
-    const paid = payments.filter(x=> x.status==='Paid');
+    const safe = Array.isArray(payments) ? payments : [];
+    const total = safe.reduce((s,x)=> s + Number(x.amount||0), 0);
+    const pending = safe.filter(x=> x.status==='Pending');
+    const overdue = safe.filter(x=> x.status==='Overdue');
+    const paid = safe.filter(x=> x.status==='Paid');
     return {
       total,
       totalStr: formatINR(total),
@@ -42,7 +43,8 @@ export default function Payments(){
   }, [payments]);
 
   const filtered = useMemo(()=>{
-    let list = [...payments];
+    const safePayments = Array.isArray(payments) ? payments : [];
+    let list = [...safePayments];
     if(search){
       const q = search.toLowerCase();
       list = list.filter(p=> (p.tenantName+' '+p.email+' '+p.paymentId).toLowerCase().includes(q));

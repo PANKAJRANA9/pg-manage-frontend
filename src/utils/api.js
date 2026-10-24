@@ -32,14 +32,48 @@ api.interceptors.response.use(
 
 const delay = (ms=250)=> new Promise(r=> setTimeout(r, ms));
 
+function ensureArray(data, fallback=[]){
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.content)) return data.content;
+  if (data && Array.isArray(data.data)) return data.data;
+  if (data && Array.isArray(data.payments)) return data.payments;
+  if (data && Array.isArray(data.rooms)) return data.rooms;
+  if (data && Array.isArray(data.tenants)) return data.tenants;
+  if (data && Array.isArray(data.bookings)) return data.bookings;
+  if (data && Array.isArray(data.complaints)) return data.complaints;
+  // If single object, wrap? No, return fallback to avoid filter crash
+  if (data && typeof data === 'object' && Object.keys(data).length===0) return fallback;
+  // If object that is actually a single record, return fallback for list endpoints
+  return fallback;
+}
+
 async function tryApi(fn, mockFn){
   try{
     const res = await fn();
-    return res.data;
+    const raw = res?.data;
+    // If API returns array directly, use it, else try to extract
+    if (Array.isArray(raw)) return raw;
+    if (raw && typeof raw === 'object'){
+      // Spring Page, wrapper, etc
+      if (Array.isArray(raw.content)) return raw.content;
+      if (Array.isArray(raw.data)) return raw.data;
+      if (Array.isArray(raw.result)) return raw.result;
+      // If it's an object with numeric keys or single object, fallback
+      // To prevent o.filter crash, return mock fallback if not array
+      const mock = mockFn();
+      if (Array.isArray(mock)) return mock;
+      return [];
+    }
+    return raw;
   }catch(e){
-    console.warn('API fallback to mock:', e.message);
+    console.warn('API fallback to mock:', e?.message || e);
     await delay();
-    return mockFn();
+    try{
+      const m = mockFn();
+      return Array.isArray(m) ? m : [];
+    }catch{
+      return [];
+    }
   }
 }
 

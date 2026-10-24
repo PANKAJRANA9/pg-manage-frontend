@@ -15,7 +15,7 @@ export default function Bookings(){
   const load = async ()=>{
     setLoading(true);
     const [b,t,r] = await Promise.all([bookingsAPI.getAll(), tenantsAPI.getAll(), roomsAPI.getAll()]);
-    setBookings(b); setTenants(t); setRooms(r); setLoading(false);
+    setBookings(Array.isArray(b)?b:[]); setTenants(Array.isArray(t)?t:[]); setRooms(Array.isArray(r)?r:[]); setLoading(false);
   };
   useEffect(()=>{ load(); },[]);
 
@@ -54,7 +54,7 @@ export default function Bookings(){
           <table className="w-full text-sm">
             <thead className="bg-[#f8fafc] text-[11px] font-bold text-slate-500 uppercase"><tr><th className="px-5 py-3 text-left">Tenant Name</th><th className="px-5 py-3 text-left">Room No</th><th className="px-5 py-3 text-left">Check In</th><th className="px-5 py-3 text-left">Check Out</th><th className="px-5 py-3 text-left">Status</th><th className="px-5 py-3 text-left">Action</th></tr></thead>
             <tbody>
-              {loading ? <tr><td colSpan={6} className="px-5 py-8 text-center">Loading...</td></tr> : bookings.map(b=>(
+              {loading ? <tr><td colSpan={6} className="px-5 py-8 text-center">Loading...</td></tr> : (Array.isArray(bookings)?bookings:[]).map(b=>(
                 <tr key={b.id} className="border-t border-slate-100 hover:bg-slate-50">
                   <td className="px-5 py-3.5 font-medium">{b.tenantName}</td>
                   <td className="px-5 py-3.5">{b.roomNumber}</td>
@@ -71,7 +71,7 @@ export default function Bookings(){
 
       <Modal open={open} onClose={()=>setOpen(false)} title={edit?'Edit Booking':'Add Booking'} footer={<><button onClick={()=>setOpen(false)} className="px-4 py-2 rounded-lg border">Cancel</button><button onClick={submit} className="px-5 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold">{edit?'Update':'Create'}</button></>}>
         <form onSubmit={submit} className="space-y-4">
-          <div><label className="label">Tenant</label><select className="input" value={form.tenantId} onChange={e=>handleTenantChange(e.target.value)} required><option value="">Select tenant</option>{tenants.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select></div>
+          <div><label className="label">Tenant</label><select className="input" value={form.tenantId} onChange={e=>handleTenantChange(e.target.value)} required><option value="">Select tenant</option>{(Array.isArray(tenants)?tenants:[]).map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select></div>
           <div><label className="label">Room</label><select className="input" value={form.roomId} onChange={e=>handleRoomChange(e.target.value)}><option value="">Select room</option>{rooms.map(r=><option key={r.id} value={r.id}>{r.roomNumber} - {r.type} ₹{r.rentAmount}</option>)}</select></div>
           <div className="grid grid-cols-2 gap-4">
             <div><label className="label">Check In</label><input type="date" className="input" value={form.checkIn} onChange={e=>setForm({...form,checkIn:e.target.value})} required/></div>

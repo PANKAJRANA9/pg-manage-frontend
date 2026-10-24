@@ -93,9 +93,18 @@ export const LS_KEYS = {
 export function loadMock(key, fallback){
   try{
     const raw = localStorage.getItem(key);
-    if(raw) return JSON.parse(raw);
-  }catch{}
-  return fallback;
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+      // If corrupted (object, string, etc), clear and return fallback
+      console.warn(`Corrupted localStorage for ${key}, resetting`);
+      localStorage.removeItem(key);
+      return fallback;
+    }
+  }catch(e){
+    console.warn(`loadMock error for ${key}`, e);
+  }
+  return Array.isArray(fallback) ? fallback : [];
 }
 export function saveMock(key, data){
   try{ localStorage.setItem(key, JSON.stringify(data)); }catch{}
