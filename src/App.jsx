@@ -10,26 +10,27 @@ import Bookings from './pages/Bookings.jsx';
 import Payments from './pages/Payments.jsx';
 import Complaints from './pages/Complaints.jsx';
 
-function Protected({ children }){
-  const token = localStorage.getItem('pg_token');
+function Protected({children}){
+  const token = localStorage.getItem('token');
   if(!token) return <Navigate to="/login" replace />;
-  return <Layout>{children}</Layout>;
+  return children;
 }
 
 export default function App(){
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login/>} />
-        <Route path="/" element={<Navigate to="/dashboard" replace/>} />
-        <Route path="/dashboard" element={<Protected><Dashboard/></Protected>} />
-        <Route path="/rooms" element={<Protected><Rooms/></Protected>} />
-        <Route path="/tenants" element={<Protected><Tenants/></Protected>} />
-        <Route path="/bookings" element={<Protected><Bookings/></Protected>} />
-        <Route path="/payments" element={<Protected><Payments/></Protected>} />
-        <Route path="/complaints" element={<Protected><Complaints/></Protected>} />
-        <Route path="*" element={<Navigate to="/dashboard" replace/>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Protected><Layout /></Protected>}>
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="rooms" element={<Rooms />} />
+          <Route path="tenants" element={<Tenants />} />
+          <Route path="bookings" element={<Bookings />} />
+          <Route path="payments" element={<Payments />} />
+          <Route path="complaints" element={<Complaints />} />
+        </Route>
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
